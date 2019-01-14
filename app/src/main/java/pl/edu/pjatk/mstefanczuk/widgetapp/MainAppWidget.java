@@ -6,15 +6,13 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
-import android.widget.ImageView;
 import android.widget.RemoteViews;
-
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Implementation of App Widget functionality.
@@ -50,15 +48,22 @@ public class MainAppWidget extends AppWidgetProvider {
     @Override
     public void onReceive(Context context, Intent intent) {
         super.onReceive(context, intent);
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean img1 = sharedPreferences.getBoolean("img1", false);
+
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.main_app_widget);
 
         if (intent.getAction().equals(ACTION_WIDGET_IMAGE)) {
-            if (ThreadLocalRandom.current().nextInt(1, 2 + 1) % 2 == 0) {
+            if (!img1) {
                 views.setImageViewResource(R.id.imageView, R.drawable.img1);
             } else {
                 views.setImageViewResource(R.id.imageView, R.drawable.img2);
             }
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean("img1", !img1);
+            editor.apply();
         } else if (intent.getAction().equals(ACTION_WIDGET_AUDIO)) {
             Log.i("onReceive", ACTION_WIDGET_AUDIO);
         }
